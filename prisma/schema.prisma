@@ -12,7 +12,7 @@ model Quiz {
   name        String
   category    String
   difficulty  String
-  questions   Question[]
+  questions   Question[] // One-to-many relationship with Question
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -20,11 +20,12 @@ model Quiz {
 model Question {
   id            String   @id @default(uuid())
   question      String
-  correctAnswer Variant  @relation("CorrectAnswer", fields: [correctAnswerId], references: [id])
-  correctAnswerId String // Foreign key for correctAnswer
-  variants      Variant[] @relation("QuestionVariants")
+  correctAnswer Variant? @relation("CorrectAnswer", fields: [correctAnswerId], references: [id])
+  correctAnswerId String @unique // Foreign key for correctAnswer
+  variants      Variant[] @relation("QuestionVariants") // One-to-many relationship with Variant
   quizId        String
-  quiz          Quiz     @relation(fields: [quizId], references: [id])
+  quiz          Quiz     @relation(fields: [quizId], references: [id]) // Many-to-one relationship with Quiz
+
 }
 
 model Variant {
@@ -32,8 +33,7 @@ model Variant {
   letter     String
   text       String
   questionId String
-  question   Question  @relation(fields: [questionId], references: [id])
+  question   Question  @relation("QuestionVariants", fields: [questionId], references: [id]) // Many-to-one relationship with Question
+  correctAnswerFor Question? @relation("CorrectAnswer")
 
-  Question Question[] @relation("CorrectAnswer")
-  Question Question[] @relation("QuestionVariants")
 }
